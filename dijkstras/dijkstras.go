@@ -4,7 +4,13 @@ import (
 	common "grokk/common"
 )
 
-func checkIfNodeExists(fasterPath map[string]int, nodeName string) bool {
+type Element struct {
+	name   string
+	weight int
+	parent *WeightedGraph
+}
+
+func checkIfNodeExists(fasterPath map[string]Element, nodeName string) bool {
 	for name := range fasterPath {
 		if name == nodeName {
 			return true
@@ -15,7 +21,7 @@ func checkIfNodeExists(fasterPath map[string]int, nodeName string) bool {
 
 func DijkstrasSearch(start, finish WeightedGraph) (map[string]int, error) {
 	queue := common.Queue[WeightedGraph]{}
-	fasterPath := make(map[string]int)
+	mapPath := make(map[string]Element)
 
 	queue.Enqueue(start)
 	for !queue.IsEmpty() {
@@ -24,22 +30,47 @@ func DijkstrasSearch(start, finish WeightedGraph) (map[string]int, error) {
 			return nil, err
 		}
 		for weight, node := range n.Neighbours {
-			exist := checkIfNodeExists(fasterPath, node.Name)
+			exist := checkIfNodeExists(mapPath, node.Name)
 			if exist {
-				currentWeight := fasterPath[node.Name]
+				element := mapPath[node.Name]
+				currentWeight := element.weight
 				newWeight := n.Weight + weight
 				if currentWeight > newWeight {
 					node.Weight = newWeight
-					fasterPath[node.Name] = newWeight
+					mapPath[node.Name] = Element{name: node.Name, weight: newWeight, parent: &n}
 				}
 			} else {
 				newWeight := n.Weight + weight
 				node.Weight = newWeight
-				fasterPath[node.Name] = newWeight
+				mapPath[node.Name] = Element{name: node.Name, weight: newWeight}
 			}
-			queue.Enqueue(node)
+			queue.Enqueue(node) // adds the node with the weight of the current
 		}
 	}
+
+	elementQueue := common.Queue[Element]{}
+	fasterPath := make(map[string]int)
+
+	elementQueue.Enqueue(mapPath[finish.Name])
+	for !elementQueue.IsEmpty() {
+		el, err := elementQueue.Dequeue()
+		if err != nil {
+			return nil, err
+		}
+
+		fasterPath[el.name] = el.weight
+
+		if el.parent != nil {
+			if nextEl, ok := mapPath[el.parent.Name]; ok {
+				elementQueue.Enqueue(nextEl)
+			}
+		}
+
+	}
+
+	// for k, v := range mapPath {
+	// 	fasterPath[k] = v.weight
+	// }
 
 	return fasterPath, nil
 }
