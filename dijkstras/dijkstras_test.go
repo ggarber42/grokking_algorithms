@@ -35,9 +35,9 @@ func Test_DijkstrasSearch(t *testing.T) {
 			book := WeightedGraph{Name: "book", Neighbours: map[int]WeightedGraph{0: poster, 5: rareLP}}
 
 			want := map[string]int{
-				"rareLP":     5,
+				"rareLP":  5,
 				"drumSet": 25,
-				"piano":      35,
+				"piano":   35,
 			}
 			got, _ := DijkstrasSearch(book, piano)
 
