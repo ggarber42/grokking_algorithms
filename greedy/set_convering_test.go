@@ -1,27 +1,22 @@
 package greedy
 
 import (
-	"grokk/common"
 	"testing"
 )
 
 func Test_SetCovering(t *testing.T) {
 	t.Run("return the stations", func(t *testing.T) {
+		statesNeeded := []string{"mt", "wa", "or", "id", "nv", "ut", "ca", "az"}
+
 		stations := make(map[string][]string)
-		stations["one"] = []string{"id", "nv", "ut"}
-		stations["two"] = []string{"wa", "mt", "id"}
-		stations["three"] = []string{"or", "nv", "ca"}
-		stations["four"] = []string{"nv", "ut"}
-		stations["five"] = []string{"ca", "az"}
+		stations["kone"] = []string{"id", "nv", "ut"}
+		stations["ktwo"] = []string{"wa", "mt", "id"}
+		stations["kthree"] = []string{"or", "nv", "ca"}
+		stations["kfour"] = []string{"nv", "ut"}
+		stations["kfive"] = []string{"ca", "az"}
 
-		statesNeeded := common.NewSet[string]()
-		for _, states := range stations {
-			for _, state := range states {
-				statesNeeded.Add(state)
-			}
-		}
 
-		expected := []string{"two", "three", "one", "five"}
+		expected := []string{"ktwo", "kthree", "kone", "kfive"}
 		actual := SetCover(stations, statesNeeded)
 		if len(expected) != len(actual) {
 			t.Errorf("expected %v, actual %v", expected, actual)

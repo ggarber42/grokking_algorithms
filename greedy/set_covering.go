@@ -1,19 +1,50 @@
 package greedy
 
-import "grokk/common"
+func SetCover(stations map[string][]string, statesNeeded []string) []string {
+	var result []string
 
-func SetCover(stations map[string][]string, statesNeeded *common.Set[string]) []string {
-	statesCovered := common.NewSet[string]()
-	stationsNedded := common.NewSet[string]()
+	for len(statesNeeded) > 0 {
+		var bestStation string
+		statesCovered := make(map[string]bool)
+		for station, states := range stations {
+			covered := make(map[string]bool)
+			for _, state := range states {
+				if sliceContains[string](state, statesNeeded) {
+					covered[state] = true
+				}
+			}
 
-	for station, states := range stations {
-		for _, state := range states {
-			if !statesCovered.Contains(state) && statesNeeded.Contains(state) {
-				stationsNedded.Add(station)
-				statesCovered.Add(state)
+			if len(covered) > len(statesCovered) {
+				bestStation = station
+				statesCovered = covered
 			}
 		}
 
+		for state := range statesCovered {
+			removeElement(state, &statesNeeded)
+		}
+		result = append(result, bestStation)
 	}
-	return stationsNedded.Values()
+	return result
+}
+
+func removeElement[T comparable](value T, items *[]T) {
+	s := *items
+	for i := 0; i < len(s); {
+		if s[i] == value {
+			s = append(s[:i], s[i+1:]...)
+		} else {
+			i++
+		}
+	}
+	*items = s
+}
+
+func sliceContains[T comparable](value T, items []T) bool {
+	for _, item := range items {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }
